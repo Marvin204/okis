@@ -1,0 +1,35 @@
+﻿@{
+    var iteraciones = ViewBag.Iteraciones as List<Portable.Models.Iteraciones>;
+}
+
+@if (iteraciones != null && iteraciones.Count > 0)
+{
+    <h4>Cuadro de Iteraciones</h4>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Iteración</th>
+                <th>X0</th>
+                <th>X1</th>
+                <th>X2</th>
+                <th>Error</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var it in iteraciones)
+            {
+                <tr>
+                    <td>@it.Numero</td>
+                    <td>@it.X0</td>
+                    <td>@it.X1</td>
+                    <td>@it.X2</td>
+                    <td>@(it.Error.ToString("G6"))</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (ViewBag.Mensaje != null)
+{
+    <div class="alert alert-warning">@ViewBag.Mensaje</div>
+}

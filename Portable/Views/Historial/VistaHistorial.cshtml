@@ -1,0 +1,282 @@
+﻿@model List<Portable.Models.Resultados>
+
+@section Styles {
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: Arial, sans-serif;
+            margin-top: 20px;
+        }
+
+        thead {
+            background-color: #007ACC;
+            color: white;
+        }
+
+        th, td {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tbody tr:hover {
+            background-color: #cce7ff;
+        }
+
+        .iteraciones-row {
+            display: none;
+            background-color: #eef6fb;
+        }
+
+        .iteraciones-table th {
+            background-color: #005b99;
+            color: white;
+        }
+
+        .btn-toggle {
+            cursor: pointer;
+            color: #007ACC;
+            border: none;
+            background: none;
+            font-weight: bold;
+        }
+.grafica {
+    width: 100%;
+    height: 250px; /* antes era 400px */
+    max-height: 300px;
+    margin-top: 15px;
+}
+    </style>
+}
+
+<h2>Historial de Resultados</h2>
+
+<table>
+    <thead>
+        <tr>
+            <th>Método</th>
+            <th>Ecuación</th>
+            <th>Resultado</th>
+            <th>Iteraciones</th>
+            <th>Error</th>
+            <th>Fecha</th>
+            <th>Detalle</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            string rowId = "result-" + item.IdResultado;
+            string iterRowId = "iter-" + item.IdResultado;
+            string canvasId = "grafica-" + item.IdResultado;
+            var puntosIteracion = item.ListaIteraciones?.Select(i => item.MetodoNumerico.NombreMetodo == "Newton" ? i.X1 : i.X2).ToList() ?? new List<double>();
+
+            <tr id="@rowId">
+                <td>@item.MetodoNumerico.NombreMetodo</td>
+                <td>@item.Ecuacion.Funcion</td>
+                <td>@item.ResultadoFinal</td>
+                <td>@item.Iteraciones</td>
+                <td>@item.ErrorEstimado</td>
+                <td>@item.FechaResultado.ToShortDateString()</td>
+                <td>
+                    <button class="btn-toggle" data-target="@iterRowId" data-funcion="@item.Ecuacion.Funcion" data-puntos='@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(puntosIteracion))' data-canvas="@canvasId">
+                        Mostrar Iteraciones
+                    </button>
+                </td>
+            </tr>
+            <tr id="@iterRowId" class="iteraciones-row">
+                <td colspan="7">
+                    @if (item.ListaIteraciones != null && item.ListaIteraciones.Any())
+                    {
+                        <table class="iteraciones-table" style="width:100%;">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>X0</th>
+                                    <th>X1</th>
+                                    <th>X2</th>
+                                    <th>F(X0)</th>
+                                    <th>F(X1)</th>
+                                    <th>F(X2)</th>
+                                    <th>Error</th>
+                                    <td>
+                                        <a href="@Url.Action("ExportarIteracionesPDF", "Historial", new { idResultado = item.IdResultado })" class="btn btn-danger btn-sm">
+                                            Exportar PDF
+                                        </a>
+                                    </td>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var iter in item.ListaIteraciones)
+                                {
+                                    <tr>
+                                        <td>@iter.Numero</td>
+                                        <td>@iter.X0</td>
+                                        <td>@iter.X1</td>
+                                        <td>@iter.X2</td>
+                                        <td>@iter.FX0</td>
+                                        <td>@iter.FX1</td>
+                                        <td>@(iter.FX2.HasValue ? iter.FX2.Value.ToString() : "-")</td>
+                                        <td>@iter.Error</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                        <canvas id="@canvasId" class="grafica"></canvas>
+                    }
+                    else
+                    {
+                        <em>No hay iteraciones registradas.</em>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const toggleButtons = document.querySelectorAll('.btn-toggle');
+
+            toggleButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const targetId = this.getAttribute('data-target');
+                    const targetRow = document.getElementById(targetId);
+
+                    const funcionStr = this.getAttribute('data-funcion');
+                    const puntos = JSON.parse(this.getAttribute('data-puntos'));
+                    const canvasId = this.getAttribute('data-canvas');
+                    const metodo = this.closest("tr").children[0].textContent;
+
+                    if (targetRow.style.display === 'table-row') {
+                        targetRow.style.display = 'none';
+                        this.textContent = 'Mostrar Iteraciones';
+                    } else {
+                        targetRow.style.display = 'table-row';
+                        this.textContent = 'Ocultar Iteraciones';
+
+                        // Graficar función y puntos
+                        const expr = math.compile(funcionStr);
+                        const xValues = [], yValues = [];
+
+                        for (let x = -10; x <= 10; x += 0.1) {
+                            try {
+                                xValues.push(x);
+                                yValues.push(expr.evaluate({ x }));
+                            } catch {
+                                xValues.push(x);
+                                yValues.push(null);
+                            }
+                        }
+
+                        const iterX = puntos;
+                        const iterY = puntos.map(p => {
+                            try {
+                                return expr.evaluate({ x: p });
+                            } catch {
+                                return null;
+                            }
+                        });
+
+                        const ctx = document.getElementById(canvasId).getContext('2d');
+
+                        // Destruye gráfico anterior si existe
+                        ctx.chart = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: xValues,
+                                datasets: [
+                                    {
+                                        label: 'f(x)',
+                                        data: yValues,
+                                        borderColor: 'rgba(0, 123, 255, 1)',
+                                        backgroundColor: 'rgba(0, 123, 255, 0.05)',
+                                        borderWidth: 1.5,
+                                        tension: 0.4,
+                                        fill: true
+                                    },
+                                    {
+                                        label: 'Iteraciones',
+                                        data: iterX.map((x, i) => ({ x: x, y: iterY[i] })),
+                                        backgroundColor: 'rgba(255, 99, 132, 1)',
+                                        borderColor: '#000',
+                                        type: 'scatter',
+                                        pointRadius: 6,
+                                        pointHoverRadius: 8,
+                                        pointStyle: 'circle'
+                                    },
+                                    {
+                                        label: 'Eje X (y=0)',
+                                        data: xValues.map(x => ({ x: x, y: 0 })),
+                                        borderColor: 'gray',
+                                        borderWidth: 1,
+                                        borderDash: [5, 5],
+                                        fill: false,
+                                        pointRadius: 0
+                                    },
+                                    {
+                                        label: 'Eje Y (x=0)',
+                                        data: [{ x: 0, y: Math.min(...yValues) }, { x: 0, y: Math.max(...yValues) }],
+                                        borderColor: 'gray',
+                                        borderWidth: 1,
+                                        borderDash: [5, 5],
+                                        fill: false,
+                                        pointRadius: 0
+                                    }
+                                ]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    title: {
+                                        display: true,
+                                        text: `Gráfica de f(x) con Iteraciones`,
+                                        font: { size: 16 }
+                                    },
+                                    legend: {
+                                        labels: {
+                                            font: { size: 12 }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        type: 'linear',
+                                        position: 'bottom',
+                                        title: {
+                                            display: true,
+                                            text: 'x',
+                                            font: { size: 14 }
+                                        },
+                                        min: -5,
+                                        max: 5
+                                    },
+                                    y: {
+                                        title: {
+                                            display: true,
+                                            text: 'f(x)',
+                                            font: { size: 14 }
+                                        },
+                                        min: -5,
+                                        max: 5
+                                    }
+                                }
+                            }
+                        });
+
+                    }
+                });
+            });
+        });
+    </script>
+}

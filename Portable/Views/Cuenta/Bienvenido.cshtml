@@ -1,0 +1,41 @@
+﻿@model string
+@{
+    ViewBag.Title = "Bienvenido";
+
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+}
+
+<header class="bg-primary text-white text-center py-4 sticky-top shadow-sm">
+    <h1 class="h3 m-0">Universidad Mariano Gálvez</h1>
+</header>
+
+<main class="container-fluid mt-4">
+    <div class="d-flex justify-content-between flex-wrap mb-4">
+        <div class="@(currentAction == "Bienvenido" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
+             onclick="location.href='@Url.Action("Bienvenido", "Cuenta")'">Inicio</div>
+
+        <div class="@(currentAction == "MenuMetodos" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
+             onclick="location.href='@Url.Action("MenuMetodos", "Metodos")'">Métodos</div>
+
+        <div class="@(currentAction == "Integrantes" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
+             onclick="location.href='@Url.Action("Integrantes", "Cuenta")'">Integrantes</div>
+
+        <div class="@(currentAction == "AcercaDe" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
+             onclick="location.href='@Url.Action("AcercaDe", "Cuenta")'">Acerca de</div>
+    </div>
+
+    <div class="bienvenida-container">
+        <div class="bienvenida-card">
+            <h1>¡Bienvenido!</h1>
+            <p>@Model</p>
+            <div class="acciones">
+                <p>Bienvenido, @Session["UsuarioNombre"]</p>
+                <p>ID de Usuario: @Session["IdUsuario"]</p>
+
+                <a href="@Url.Action("CrearCuenta", "Cuenta")">Crear nuevo usuario</a>
+                <a href="@Url.Action("IniciarSesion", "Cuenta")">Cerrar sesión</a>
+            </div>
+        </div>
+    </div>
+</main>

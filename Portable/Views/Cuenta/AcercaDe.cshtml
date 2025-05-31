@@ -1,0 +1,85 @@
+﻿@{
+    ViewBag.Title = "Acerca de";
+
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+}
+
+<header class="bg-primary text-white text-center py-4 sticky-top shadow-sm">
+    <h1 class="h3 m-0">Universidad Mariano Gálvez</h1>
+</header>
+
+<main class="container-fluid mt-4">
+    <div class="d-flex justify-content-between flex-wrap mb-4">
+        <div class="@(currentAction == "Bienvenido" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
+             onclick="location.href='@Url.Action("Bienvenido", "Cuenta")'">Inicio</div>
+
+        <div class="@(currentAction == "MenuMetodos" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
+             onclick="location.href='@Url.Action("MenuMetodos", "Metodos")'">Métodos</div>
+
+        <div class="@(currentAction == "Integrantes" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
+             onclick="location.href='@Url.Action("Integrantes", "Cuenta")'">Integrantes</div>
+
+        <div class="@(currentAction == "AcercaDe" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
+             onclick="location.href='@Url.Action("AcercaDe", "Cuenta")'">Acerca de</div>
+    </div>
+    <!-- Contenedor central más ancho -->
+    <div class="container mt-4">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow p-4 rounded-4 border-0">
+                <h2 class="mb-4 text-center text-primary">Acerca del Proyecto</h2>
+
+                <p>
+                    Este proyecto académico fue desarrollado para ofrecer una herramienta web interactiva que permita resolver ecuaciones utilizando distintos métodos numéricos. Está orientado a estudiantes de ingeniería y carreras afines que buscan entender paso a paso cómo se aplican estos algoritmos.
+                </p>
+
+                <div class="row g-4 mt-4">
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded shadow-sm h-100 bg-light">
+                            <h5 class="text-primary">🔧 Métodos Implementados</h5>
+                            <p>Incluye:</p>
+                            <p class="mb-1">• Newton-Raphson</p>
+                            <p class="mb-1">• Secante</p>
+                            <p class="mb-1">• Müller</p>
+                            <p class="mb-0">• Gauss (Eliminación)</p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded shadow-sm h-100 bg-light">
+                            <h5 class="text-primary">📌 Funcionalidades Clave</h5>
+                            <p class="mb-1">• Ingreso de ecuaciones personalizadas</p>
+                            <p class="mb-1">• Iteraciones paso a paso</p>
+                            <p class="mb-1">• Historial guardado por usuario</p>
+                            <p class="mb-1">• Reportes PDF generados automáticamente</p>
+                            <p class="mb-0">• Inicio de sesión y control de usuarios</p>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded shadow-sm h-100 bg-light">
+                            <h5 class="text-primary">🛠️ Tecnologías Utilizadas</h5>
+                            <p class="mb-1">• ASP.NET MVC</p>
+                            <p class="mb-1">• C#</p>
+                            <p class="mb-1">• ADO.NET</p>
+                            <p class="mb-1">• SQL Server</p>
+                            <p class="mb-0">• Librerías PDF</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="p-3 border rounded shadow-sm h-100 bg-light">
+                            <h5 class="text-primary">🎯 Público Objetivo</h5>
+                            <p>Estudiantes de ingeniería y ciencias aplicadas que desean reforzar sus conocimientos en métodos numéricos mediante una plataforma práctica y educativa.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <blockquote class="blockquote mt-5 text-center">
+                    <p class="mb-0">"Las matemáticas no son sobre números, ecuaciones, cálculos o algoritmos: se trata de comprensión." — William Paul Thurston</p>
+                </blockquote>
+
+                <p class="text-center mt-4 text-muted">Desarrollado como parte de un proyecto académico por estudiantes comprometidos con la innovación educativa.</p>
+            </div>
+        </div>
+    </div>
+</main>

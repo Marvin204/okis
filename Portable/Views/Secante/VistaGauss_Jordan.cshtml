@@ -1,0 +1,63 @@
+﻿@model Portable.Models.Ecuaciones
+
+@{
+    ViewBag.Title = "Método de Gauss-Jordan";
+    var iteraciones = ViewBag.Iteraciones as List<Portable.Models.Iteraciones>;
+}
+
+<h2>Método de Gauss-Jordan</h2>
+
+<button class="btn btn-secondary mb-3" onclick="location.href='@Url.Action("MenuMetodos", "Metodos")'">Ver Historial</button>
+
+@if (ViewBag.Mensaje != null)
+{
+    <div class="alert alert-info">@ViewBag.Mensaje</div>
+}
+
+@using (Html.BeginForm("VistaGauss_Jordan", "Secante", FormMethod.Post))
+{
+    <div class="form-group">
+        @Html.LabelFor(m => m.Funcion, "Número de incógnitas")
+        @Html.TextBoxFor(m => m.Funcion, new { @class = "form-control", placeholder = "Ej: 3", type = "number", min = "1", required = "required" })
+        <small class="form-text text-muted">Ingrese el número de incógnitas (tamaño del sistema)</small>
+    </div>
+
+    <div class="form-group">
+        <label for="MatrizEntrada">Matriz aumentada (una fila por línea, valores separados por coma)</label>
+        <textarea id="MatrizEntrada" name="MatrizEntrada" class="form-control" rows="5" placeholder="Ejemplo para sistema 2x2:
+2,1,8
+1,-1,2"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Resolver</button>
+}
+
+<hr />
+
+@if (iteraciones != null && iteraciones.Count > 0)
+{
+    <h3>Cuadro de Iteraciones</h3>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Iteración</th>
+                <th>X0</th>
+                <th>X1</th>
+                <th>X2</th>
+                <th>Error</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var it in iteraciones)
+            {
+                <tr>
+                    <td>@it.Numero</td>
+                    <td>@it.X0</td>
+                    <td>@it.X1</td>
+                    <td>@it.X2</td>
+                    <td>@(it.Error.ToString("G6"))</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

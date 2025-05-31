@@ -1,0 +1,122 @@
+﻿@model Portable.Models.Usuarios
+
+@{
+    ViewBag.Title = "Crear Cuenta";
+    Layout = null;
+}
+
+<style>
+    body {
+        background-color: #1976D2; /* Azul UMG */
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #FFFFFF; /* Blanco */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    .form-container {
+        background-color: #FFFFFF; /* Blanco */
+        padding: 30px 40px;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        width: 350px;
+        color: #1976D2; /* Azul */
+        text-align: center;
+    }
+
+    h2 {
+        margin-bottom: 25px;
+        color: #1976D2; /* Azul */
+        font-weight: 700;
+    }
+
+    label {
+        font-weight: 600;
+        display: block;
+        text-align: left;
+        margin-bottom: 5px;
+        color: #D32F2F; /* Rojo */
+    }
+
+    input.form-control {
+        border: 2px solid #1976D2; /* Azul */
+        border-radius: 5px;
+        padding: 8px 10px;
+        font-size: 14px;
+        width: 100%;
+        color: #1976D2; /* Azul */
+    }
+
+        input.form-control:focus {
+            outline: none;
+            border-color: #FFD700; /* Oro */
+            box-shadow: 0 0 5px #FFD700; /* Oro */
+        }
+
+    .btn-success {
+        background-color: #1976D2; /* Azul */
+        border: none;
+        width: 100%;
+        padding: 10px;
+        font-weight: 600;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        color: #FFD700; /* Oro */
+    }
+
+        .btn-success:hover {
+            background-color: #145a9c; /* Azul más oscuro */
+            color: #FFFFFF; /* Blanco */
+        }
+
+    .error-message {
+        background-color: #ffcdd2; /* Rojo claro */
+        border: 1px solid #D32F2F; /* Rojo */
+        color: #D32F2F; /* Rojo */
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        font-weight: 600;
+        text-align: center;
+    }
+</style>
+
+<div class="form-container">
+    <h2>Crear Cuenta</h2>
+
+    @if (ViewBag.Mensaje != null)
+    {
+        <div class="error-message">
+            @ViewBag.Mensaje
+        </div>
+    }
+
+    @using (Html.BeginForm("CrearCuenta", "Cuenta", FormMethod.Post))
+    {
+        @Html.AntiForgeryToken()
+
+        <div class="form-group">
+            <label for="Nombre">Usuario:</label>
+            @Html.TextBoxFor(m => m.Nombre, new { @class = "form-control" })
+        </div>
+
+        <div class="form-group" style="margin-top:10px;">
+            <label for="ContrasenaHash">Contraseña:</label>
+            @Html.PasswordFor(m => m.ContrasenaHash, new { @class = "form-control" })
+        </div>
+
+        <div class="form-group" style="margin-top:10px;">
+            <label for="Correo">Correo:</label>
+            @Html.TextBoxFor(m => m.Correo, new { @class = "form-control" })
+        </div>
+
+        <div style="margin-top:20px;">
+            <input type="submit" value="Crear Cuenta" class="btn btn-success" />
+        </div>
+    }
+</div>

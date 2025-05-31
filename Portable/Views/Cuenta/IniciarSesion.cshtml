@@ -1,0 +1,233 @@
+﻿@{
+    ViewBag.Title = "Iniciar Sesión";
+    Layout = null;
+}
+
+<style>
+    body {
+        background: url('@Url.Content("~/Resources/Fondo2B.png")') no-repeat center center fixed;
+        background-size: cover;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #FFFFFF;
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .header-umg {
+        background-color: rgba(0, 74, 173, 0.8);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 30px;
+        height: 80px;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+    }
+
+    .header-umg img.logo-umg {
+        height: 90px;
+        margin-right: 20px;
+    }
+
+    .header-umg img.extra-img {
+        height: 70px;
+        margin-left: 35px;
+    }
+
+    .umg-banner-text {
+        text-align: center;
+        font-size: 3rem;
+        font-weight: bold;
+    }
+
+    .light-text {
+        color: #FFD700;
+        font-weight: 600;
+        display: block;
+    }
+
+    .bold-blue {
+        color: #00B0FF;
+        font-weight: 700;
+        display: block;
+    }
+
+    .content-area {
+        display: flex;
+        flex: 1;
+        justify-content: space-between;
+        align-items: center;
+        padding: 40px;
+    }
+
+    .title-left {
+        font-size: 5rem;
+        line-height: 1.5;
+        font-weight: bold;
+        padding: 20px;
+    }
+
+    .title-left span:nth-child(1) {
+        color: #D32F2F;
+    }
+
+    .title-left span:nth-child(2) {
+        color: #FFD700;
+    }
+
+    .title-left span:nth-child(3) {
+        color: #1976D2;
+    }
+
+    .login-container {
+        background-color: rgba(255, 255, 255, 0.9);
+        padding: 30px 40px;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+        width: 350px;
+        color: #1976D2;
+        text-align: center;
+        flex-shrink: 0;
+    }
+
+    h2 {
+        margin-bottom: 25px;
+        color: #1976D2;
+        font-weight: 700;
+    }
+
+    label {
+        font-weight: 600;
+        display: block;
+        text-align: left;
+        margin-bottom: 5px;
+        color: #D32F2F;
+    }
+
+    input.form-control {
+        border: 2px solid #1976D2;
+        border-radius: 5px;
+        padding: 8px 10px;
+        font-size: 14px;
+        width: 100%;
+        color: #1976D2;
+    }
+
+    input.form-control:focus {
+        outline: none;
+        border-color: #FFD700;
+        box-shadow: 0 0 5px #FFD700;
+    }
+
+    .btn-primary {
+        background-color: #1976D2;
+        border: none;
+        width: 100%;
+        padding: 10px;
+        font-weight: 600;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        color: #FFD700;
+    }
+
+    .btn-primary:hover {
+        background-color: #145a9c;
+        color: #FFFFFF;
+    }
+
+    .btn-secondary {
+        margin-top: 15px;
+        background-color: #FFD700;
+        border: none;
+        color: #1976D2;
+        padding: 10px;
+        width: 100%;
+        font-weight: 600;
+        font-size: 16px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-secondary:hover {
+        background-color: #e6c200;
+        color: #145a9c;
+        text-decoration: none;
+    }
+
+    .error-message {
+        background-color: #ffcdd2;
+        border: 1px solid #D32F2F;
+        color: #D32F2F;
+        padding: 10px;
+        border-radius: 5px;
+        margin-bottom: 15px;
+        font-weight: 600;
+        text-align: center;
+    }
+</style>
+
+
+
+<!-- Franja azul superior -->
+<div class="header-umg">
+    <div class="header-left">
+        <img src="@Url.Content("~/Resources/umg2B.png")" alt="Logo UMG" class="logo-umg" />
+        <div class="umg-banner-text">
+            <span class="light-text">Universidad Mariano Gálvez</span>
+            <span class="bold-blue">de Guatemala</span>
+        </div>
+    </div>
+    <img src="@Url.Content("~/Resources/UMG1M.png")" alt="Extra Imagen" class="extra-img" />
+</div>
+
+<!-- Contenido central -->
+<div class="content-area">
+    <div class="title-left">
+        <span>Métodos</span><br />
+        <span>Numéricos</span><br />
+        <span>Online</span>
+    </div>
+
+    <div class="login-container">
+        <h2>Iniciar Sesión</h2>
+
+        @if (ViewBag.Error != null)
+        {
+            <div class="error-message">
+                @ViewBag.Error
+            </div>
+        }
+
+        @using (Html.BeginForm("IniciarSesion", "Cuenta", FormMethod.Post))
+        {
+            @Html.AntiForgeryToken()
+
+            <div class="form-group">
+                <label for="nombre">Usuario:</label>
+                <input type="text" name="nombre" id="nombre" class="form-control" required />
+            </div>
+
+            <div class="form-group" style="margin-top:10px;">
+                <label for="contrasena">Contraseña:</label>
+                <input type="password" name="contrasena" id="contrasena" class="form-control" required />
+            </div>
+
+            <div style="margin-top:20px;">
+                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            </div>
+        }
+
+        <a href="@Url.Action("CrearCuenta", "Cuenta")" class="btn btn-secondary">Crear Cuenta</a>
+    </div>
+</div>

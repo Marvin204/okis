@@ -1,0 +1,114 @@
+﻿@model List<Portable.Models.Resultados>
+
+@foreach (var resultado in Model)
+{
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4>@resultado.MetodoNumerico.NombreMetodo - @resultado.Ecuacion.Funcion</h4>
+            <p><strong>Resultado:</strong> @resultado.ResultadoFinal</p>
+            <p><strong>Error Estimado:</strong> @resultado.ErrorEstimado</p>
+            <p><strong>Iteraciones:</strong> @resultado.Iteraciones</p>
+            <p><strong>Fecha:</strong> @resultado.FechaResultado.ToShortDateString()</p>
+        </div>
+
+        <div class="panel-body">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>N°</th>
+                        <th>X0</th>
+                        <th>X1</th>
+                        @if (resultado.MetodoNumerico.NombreMetodo == "Müller" || resultado.MetodoNumerico.NombreMetodo.Contains("Gauss"))
+                        {
+                            <th>X2</th>
+                        }
+                        <th>F(X0)</th>
+                        <th>F(X1)</th>
+                        @if (resultado.MetodoNumerico.NombreMetodo == "Müller")
+                        {
+                            <th>F(X2)</th>
+                        }
+                        <th>Error</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var it in resultado.ListaIteraciones)
+                    {
+                        // Verificar si hay al menos un valor relevante distinto de cero
+                        bool filaValida =
+                            it.X0 != 0.0 || it.X1 != 0.0 || it.X2 != 0.0 ||
+                            it.FX0 != 0.0 || it.FX1 != 0.0 || (it.FX2.HasValue && it.FX2.Value != 0.0) || it.Error != 0.0;
+
+                        if (filaValida)
+                        {
+                            <tr>
+                                <td>@it.Numero</td>
+                                <td>@(it.X0 != 0.0 ? it.X0.ToString("F6") : "")</td>
+                                <td>@(it.X1 != 0.0 ? it.X1.ToString("F6") : "")</td>
+                                @if (resultado.MetodoNumerico.NombreMetodo == "Müller" || resultado.MetodoNumerico.NombreMetodo.Contains("Gauss"))
+                                {
+                                    <td>@(it.X2 != 0.0 ? it.X2.ToString("F6") : "")</td>
+                                }
+                                <td>@(it.FX0 != 0.0 ? it.FX0.ToString("F6") : "")</td>
+                                <td>@(it.FX1 != 0.0 ? it.FX1.ToString("F6") : "")</td>
+                                @if (resultado.MetodoNumerico.NombreMetodo == "Müller")
+                                {
+                                    <td>@(it.FX2.HasValue && it.FX2.Value != 0.0 ? it.FX2.Value.ToString("F6") : "")</td>
+                                }
+                                <td>@(it.Error != 0.0 ? it.Error.ToString("F6") : "")</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+
+            <div>
+                @Html.Action("GraficaIteraciones", "Historial", new { idResultado = resultado.IdResultado })
+            </div>
+
+            <div>
+                @Html.ActionLink("Exportar PDF", "ExportarIteracionesPDF", new { idResultado = resultado.IdResultado }, new { @class = "btn btn-primary" })
+            </div>
+        </div>
+    </div>
+}
+
+
+@section Scripts {
+    <script>
+        async function verIteraciones(idResultado) {
+            try {
+                const response = await fetch(`/Historial/ObtenerIteraciones?idResultado=${idResultado}`);
+                if (!response.ok) throw new Error('Respuesta no OK');
+
+                const data = await response.json();
+
+                const tbody = document.getElementById('iteracionesBody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center">No se encontraron iteraciones.</td></tr>';
+                } else {
+                    data.forEach(it => {
+                        tbody.innerHTML += `
+                                            <tr>
+                                                <td>${it.NumeroIteracion}</td>
+                                                <td>${it.X0}</td>
+                                                <td>${it.FX0}</td>
+                                                <td>${it.Error}</td>
+                                            </tr>`;
+                    });
+                }
+
+                document.getElementById('tablaIteraciones').style.display = 'block';
+
+                // Scroll suave a la tabla de iteraciones
+                document.getElementById('tablaIteraciones').scrollIntoView({ behavior: 'smooth' });
+            }
+            catch (error) {
+                console.error('Error al obtener iteraciones:', error);
+                alert('Error al cargar las iteraciones. Por favor, inténtalo de nuevo.');
+            }
+        }
+    </script>
+}

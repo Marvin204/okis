@@ -1,0 +1,36 @@
+﻿@model List<Portable.Models.Iteraciones>
+
+<canvas id="graficaIteraciones" width="600" height="400"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    function dibujarGrafica() {
+        var ctx = document.getElementById('graficaIteraciones').getContext('2d');
+        var puntos = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model));
+
+        var labels = puntos.map(p => p.X0.toFixed(4));
+        var data = puntos.map(p => p.FX0.toFixed(4));
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'f(X0) vs X0',
+                    data: data,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    fill: false,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    x: { title: { display: true, text: 'X0' } },
+                    y: { title: { display: true, text: 'f(X0)' } }
+                }
+            }
+        });
+    }
+
+    dibujarGrafica();
+</script>

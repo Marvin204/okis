@@ -1,0 +1,76 @@
+﻿@model Portable.Models.Ecuaciones
+@{
+    var iteraciones = ViewBag.Iteraciones as List<Portable.Models.Iteraciones>;
+}
+
+@if (iteraciones != null && iteraciones.Count > 0)
+{
+    <h3>Cuadro de Iteraciones</h3>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>X</th>
+                <th>f(X)</th>
+                <th>f'(X)</th>
+                <th>Error</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var it in iteraciones)
+            {
+                <tr>
+                    <td>@it.Numero</td>
+                    <td>@it.X0</td>
+                    <td>@it.FX0</td>
+                    <td>@it.FX1</td>
+                    <td>@it.Error</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <h3>Gráfica de f(x)</h3>
+    <canvas id="graficaNewton" width="600" height="400"></canvas>
+
+    <script>
+        function dibujarGraficaNewton() {
+            const datosGrafica = @Html.Raw(ViewBag.PuntosGrafica ?? "[]");
+            const labels = datosGrafica.map(p => p.x);
+            const data = datosGrafica.map(p => p.y);
+
+            const ctx = document.getElementById('graficaNewton')?.getContext('2d');
+
+            if (ctx && labels.length > 0) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'f(x)',
+                            data: data,
+                            borderColor: 'rgba(0, 123, 255, 1)',
+                            backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                            tension: 0.3,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            x: { title: { display: true, text: 'x' } },
+                            y: { title: { display: true, text: 'f(x)' } }
+                        }
+                    }
+                });
+            }
+            else {
+                console.warn("No hay datos o canvas no encontrado.");
+            }
+        }
+    </script>
+}
+else
+{
+    <p>No hay iteraciones para mostrar.</p>
+}

@@ -1,0 +1,305 @@
+﻿@model Portable.Models.Ecuaciones
+
+@{
+    ViewBag.Title = "Métodos Numéricos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    #contenedorMetodos {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    #cuadroMetodos {
+        flex: 0 0 250px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .card {
+        padding: 25px 30px;
+        flex: 1 1 400px;
+        min-width: 300px;
+    }
+
+    .vertical-button {
+        width: 100%;
+        padding: 10px;
+        font-size: 16px;
+        cursor: pointer;
+        border: 2px solid #002b5c;
+        background-color: white;
+        color: #002b5c;
+        border-radius: 5px;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+        .vertical-button:hover, .vertical-button.selected {
+            background-color: #002b5c;
+            color: white;
+        }
+
+    .formulario {
+        display: none;
+    }
+</style>
+
+<header class="bg-primary text-white text-center py-4 sticky-top shadow-sm" style="background-color: #002b5c;">
+    <h1 class="h3 m-0">Universidad Mariano Gálvez</h1>
+</header>
+<main class="container-fluid mt-4">
+    <div class="d-flex justify-content-between flex-wrap mb-4">
+        <div class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Bienvenido" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
+             onclick="location.href='@Url.Action("Bienvenido", "Cuenta")'">Inicio</div>
+        <div class="@(ViewContext.RouteData.Values["action"]?.ToString() == "MenuMetodos" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
+             onclick="location.href='@Url.Action("MenuMetodos", "Metodos")'">Métodos</div>
+        <div class="@(ViewContext.RouteData.Values["action"]?.ToString() == "Integrantes" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
+             onclick="location.href='@Url.Action("Integrantes", "Cuenta")'">Integrantes</div>
+        <div class="@(ViewContext.RouteData.Values["action"]?.ToString() == "AcercaDe" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
+             onclick="location.href='@Url.Action("AcercaDe", "Cuenta")'">Acerca de</div>
+    </div>
+
+    <div id="contenedorMetodos">
+        <!-- Botones -->
+        <div id="cuadroMetodos" class="card">
+            <h4 class="text-primary">Selecciona un método numérico</h4>
+            <button class="vertical-button" onclick="mostrarFormulario(event, 'Newton')">Método de Newton-Raphson</button>
+            <button class="vertical-button" onclick="mostrarFormulario(event, 'Secante')">Metodo de Secante</button>
+            <button class="vertical-button" onclick="mostrarFormulario(event, 'Muller')">Método de Müller</button>
+            <button class="vertical-button" onclick="mostrarFormulario(event, 'GaussJordan')">Gauss-Jordan</button>
+            <button class="vertical-button" onclick="location.href='@Url.Action("VistaHistorial", "Historial")'">Ver Historial</button>
+        </div>
+
+        <!-- Formulario Newton -->
+        <div id="formularioNewton" class="card formulario">
+            <h4 class="text-primary">Método de Newton-Raphson</h4>
+            <form id="formNewton">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Funcion)
+                    @Html.TextBoxFor(m => m.Funcion, new { @class = "form-control", placeholder = "Ej: x^3 - 2*x - 5" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.ValorInicial1)
+                    @Html.TextBoxFor(m => m.ValorInicial1, new { @class = "form-control", type = "number", step = "any" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Tolerancia)
+                    @Html.TextBoxFor(m => m.Tolerancia, new { @class = "form-control", type = "number", step = "any" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.MaxIteraciones)
+                    @Html.TextBoxFor(m => m.MaxIteraciones, new { @class = "form-control", type = "number", min = "1" })
+                </div>
+                <button type="submit" class="btn btn-primary">Calcular</button>
+            </form>
+        </div>
+        <!--Formulario Secate-->
+
+        <div id="formularioSecante" class="card formulario">
+            <h4 class="text-primary">Método de la Secante</h4>
+            <form id="formSecante">
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Funcion, "Función f(x)")
+                    @Html.TextBoxFor(m => m.Funcion, new { @class = "form-control", placeholder = "Ej: x^3 - 2*x - 5" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.ValorInicial1, "Valor Inicial x0")
+                    @Html.TextBoxFor(m => m.ValorInicial1, new { @class = "form-control", type = "number", step = "any" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.ValorInicial2, "Valor Inicial x1")
+                    @Html.TextBoxFor(m => m.ValorInicial2, new { @class = "form-control", type = "number", step = "any" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Tolerancia, "Tolerancia")
+                    @Html.TextBoxFor(m => m.Tolerancia, new { @class = "form-control", placeholder = "Ej: 0.0001", type = "number", step = "any" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.MaxIteraciones, "Máximo de Iteraciones")
+                    @Html.TextBoxFor(m => m.MaxIteraciones, new { @class = "form-control", type = "number", min = "1" })
+                </div>
+
+                <button type="submit" class="btn btn-primary">Resolver</button>
+            </form>
+        </div>
+
+        <!-- Formulario Gauss-Jordan -->
+        <div id="formularioGaussJordan" class="card formulario">
+            <h4 class="text-primary">Método de Gauss-Jordan</h4>
+            @using (Html.BeginForm("VistaGauss", "Gauss", FormMethod.Post))
+            {
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Funcion, "Número de incógnitas")
+                    @Html.TextBoxFor(m => m.Funcion, new { @class = "form-control", placeholder = "Ej: 3", type = "number", min = "1", required = "required" })
+                    <small class="form-text text-muted">Ingrese el número de incógnitas (tamaño del sistema)</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="MatrizEntrada">Matriz aumentada (una fila por línea, valores separados por coma)</label>
+                    <textarea id="MatrizEntrada" name="MatrizEntrada" class="form-control" rows="5" placeholder="Ejemplo para sistema 2x2:
+2,1,8
+1,-1,2"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Resolver</button>
+            }
+        </div>
+
+        <!-- Formulario Müller -->
+        <div id="formularioMuller" class="card formulario">
+            <h4 class="text-primary">Método de Müller</h4>
+            @using (Html.BeginForm("VistaMuller", "Muller", FormMethod.Post, new { id = "formMuller" }))
+            {
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Funcion, "Función f(x)")
+                    @Html.TextBoxFor(m => m.Funcion, new { @class = "form-control", placeholder = "Ej: x^3 - 13*x - 12" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.ValorInicial1, "Valor Inicial x0")
+                    @Html.TextBoxFor(m => m.ValorInicial1, new { @class = "form-control", type = "number", step = "any" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.ValorInicial2, "Valor Inicial x1")
+                    @Html.TextBoxFor(m => m.ValorInicial2, new { @class = "form-control", type = "number", step = "any" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.ValorInicial3, "Valor Inicial x2")
+                    @Html.TextBoxFor(m => m.ValorInicial3, new { @class = "form-control", type = "number", step = "any" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.Tolerancia, "Tolerancia")
+                    @Html.TextBoxFor(m => m.Tolerancia, new { @class = "form-control", type = "number", step = "any", placeholder = "Ej: 0.0001" })
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(m => m.MaxIteraciones, "Máximo de Iteraciones")
+                    @Html.TextBoxFor(m => m.MaxIteraciones, new { @class = "form-control", type = "number", min = "1" })
+                </div>
+                <button type="submit" class="btn btn-primary">Calcular</button>
+            }
+        </div>
+    </div>
+
+    <div id="resultadoNewton" class="mt-4"></div>
+    <div id="resultadoMuller" class="mt-4"></div>
+    <div id="resultadoSecante" class="mt-4"></div>
+    <div id="resultadoSGauss" class="mt-4"></div>
+
+</main>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        function mostrarFormulario(event, metodo) {
+            event.preventDefault();
+            const formularios = document.querySelectorAll('.formulario');
+            formularios.forEach(f => f.style.display = 'none');
+
+            const botones = document.querySelectorAll('.vertical-button');
+            botones.forEach(b => b.classList.remove('selected'));
+
+            limpiarResultados(); 
+
+
+            if (metodo === 'Newton') {
+                document.getElementById('formularioNewton').style.display = 'block';
+                event.target.classList.add('selected');
+            }
+            else if (metodo === 'Secante') {
+                document.getElementById('formularioSecante').style.display = 'block';
+                event.target.classList.add('selected');
+
+            } else if (metodo === 'Muller') {
+                document.getElementById('formularioMuller').style.display = 'block';
+                event.target.classList.add('selected');
+            }
+            else if (metodo === 'GaussJordan') {
+                document.getElementById('formularioGaussJordan').style.display = 'block';
+                event.target.classList.add('selected');
+            }
+
+        }
+
+        // Envío AJAX Newton
+        document.getElementById('formNewton')?.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const form = $(this);
+            $.ajax({
+                url: '@Url.Action("VistaNewton", "Newton")',
+                method: 'POST',
+                data: form.serialize(),
+                success: function (response) {
+                    $('#resultadoNewton').html(response);
+                    if (typeof dibujarGraficaNewton === 'function') {
+                        dibujarGraficaNewton();
+                    }
+                },
+                error: function () {
+                    $('#resultadoNewton').html('<div class="alert alert-danger">Error al calcular.</div>');
+                }
+            });
+        });
+
+          // Envío AJAX Secante
+  document.getElementById('formSecante')?.addEventListener('submit', function (e) {
+      e.preventDefault();
+      const form = $(this);
+      $.ajax({
+          url: '@Url.Action("VistaSecante", "Secante")',
+          method: 'POST',
+          data: form.serialize(),
+          success: function (response) {
+              $('#resultadoSecante').html(response);
+              if (typeof dibujarGraficaSecante === 'function') {
+                  dibujarGraficaSecante();
+              }
+          },
+          error: function () {
+              $('#resultadoSecante').html('<div class="alert alert-danger">Error al calcular.</div>');
+          }
+      });
+  });
+
+
+        // Envío AJAX Muller
+        document.getElementById('formMuller')?.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const form = $(this);
+            $.ajax({
+                url: '@Url.Action("VistaMuller", "Muller")',
+                method: 'POST',
+                data: form.serialize(),
+                success: function (response) {
+                    $('#resultadoMuller').html(response);
+                    if (typeof dibujarGraficaMuller === 'function') {
+                        dibujarGraficaMuller();
+                    }
+                },
+                error: function () {
+                    $('#resultadoMuller').html('<div class="alert alert-danger">Error al calcular.</div>');
+                }
+            });
+        });
+    </script>
+
+    <script>
+        function limpiarResultados() {
+            // Limpia tablas o gráficos
+            const tabla = document.getElementById("tablaIteraciones");
+            if (tabla) tabla.innerHTML = "";
+
+            const grafica = document.getElementById("graficaMetodo");
+            if (grafica && grafica.getContext) {
+                const ctx = grafica.getContext("2d");
+                ctx.clearRect(0, 0, grafica.width, grafica.height);
+            }
+
+            // Limpia los contenedores de resultados
+            document.getElementById("resultadoNewton").innerHTML = "";
+            document.getElementById("resultadoSecante").innerHTML = "";
+            document.getElementById("resultadoMuller").innerHTML = "";
+        }
+    </script>
+    }

@@ -1,0 +1,87 @@
+﻿@{
+    ViewBag.Title = "Integrantes";
+
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+}
+
+<header class="bg-primary text-white text-center py-4 sticky-top shadow-sm">
+    <h1 class="h3 m-0">Universidad Mariano Gálvez</h1>
+</header>
+
+<main class="container mt-4">
+    <!-- Menú de navegación -->
+    <div class="d-flex justify-content-between flex-wrap mb-4">
+        <div class="@(currentAction == "Bienvenido" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
+             onclick="location.href='@Url.Action("Bienvenido", "Cuenta")'">Inicio</div>
+
+        <div class="@(currentAction == "MenuMetodos" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
+             onclick="location.href='@Url.Action("MenuMetodos", "Metodos")'">Métodos</div>
+
+        <div class="@(currentAction == "Integrantes" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
+             onclick="location.href='@Url.Action("Integrantes", "Cuenta")'">Integrantes</div>
+
+        <div class="@(currentAction == "AcercaDe" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
+             onclick="location.href='@Url.Action("AcercaDe", "Cuenta")'">Acerca de</div>
+    </div>
+
+    <!-- Título -->
+    <h3 class="text-center text-primary mb-4">Integrantes del grupo</h3>
+
+    <!-- Tarjetas de integrantes -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @* Tarjeta 1 *@
+        <div class="col">
+            <div class="card h-100 shadow border-primary">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-primary">Marvin Osvaldo Zepeda Quevedo</h5>
+                    <p class="card-text mb-1"><strong>Carnet:</strong> 1790-23-9538</p>
+                    <p class="card-text"><strong>Correo:</strong> mzepedaq@miumg.edu.gt</p>
+                </div>
+            </div>
+        </div>
+
+        @* Tarjeta 2 *@
+        <div class="col">
+            <div class="card h-100 shadow border-primary">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-primary">Jasmine Ruano Sandoval</h5>
+                    <p class="card-text mb-1"><strong>Carnet:</strong> 1790-23-14273</p>
+                    <p class="card-text"><strong>Correo:</strong> jruanos5@miumg.edu.gt</p>
+                </div>
+            </div>
+        </div>
+
+        @* Tarjeta 3 *@
+        <div class="col">
+            <div class="card h-100 shadow border-primary">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-primary">Yeniffer Nayeli Zepeda Ramírez</h5>
+                    <p class="card-text mb-1"><strong>Carnet:</strong> 1790-23-8589</p>
+                    <p class="card-text"><strong>Correo:</strong> yzepedar2@miumg.edu.gt</p>
+                </div>
+            </div>
+        </div>
+
+        @* Tarjeta 4 *@
+        <div class="col">
+            <div class="card h-100 shadow border-primary">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-primary">Zurisdai Eliasif Alberto Parada Ramírez</h5>
+                    <p class="card-text mb-1"><strong>Carnet:</strong> 1790-23-7417</p>
+                    <p class="card-text"><strong>Correo:</strong> zparadar@miumg.edu.gt</p>
+                </div>
+            </div>
+        </div>
+
+        @* Tarjeta 5 *@
+        <div class="col">
+            <div class="card h-100 shadow border-primary">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-primary">Luis Hugo de León Cruz</h5>
+                    <p class="card-text mb-1"><strong>Carnet:</strong> 1790-23-7939</p>
+                    <p class="card-text"><strong>Correo:</strong> ldeleonc26@miumg.edu.gt</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

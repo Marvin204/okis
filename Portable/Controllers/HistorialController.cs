@@ -12,37 +12,6 @@ namespace Portable.Controllers
     public class HistorialController : Controller
     {
 
-
-        public ActionResult GraficaIteraciones(int idResultado)
-        {
-            List<Iteraciones> iteraciones = new List<Iteraciones>();
-
-            using (SqlConnection conn = ConexionDBController.ObtenerConexion())
-            {
-                conn.Open();
-                string query = "SELECT X0, FX0 FROM Iteraciones WHERE IdResultado = @IdResultado ORDER BY Numero";
-
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@IdResultado", idResultado);
-                    using (SqlDataReader reader = cmd.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            iteraciones.Add(new Iteraciones
-                            {
-                                X0 = reader["X0"] != DBNull.Value ? Convert.ToDouble(reader["X0"]) : 0,
-                                FX0 = reader["FX0"] != DBNull.Value ? Convert.ToDouble(reader["FX0"]) : 0
-                            });
-                        }
-                    }
-                }
-            }
-
-            return PartialView("_GraficaIteraciones", iteraciones);
-        }
-
-
         public ActionResult ExportarIteracionesPDF(int idResultado)
         {
             // Obtener las iteraciones asociadas a ese resultado

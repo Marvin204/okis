@@ -18,7 +18,7 @@
              onclick="location.href='@Url.Action("MenuMetodos", "Metodos")'">Métodos</div>
 
         <div class="@(currentAction == "Integrantes" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
-             onclick="location.href='@Url.Action("Integrantes", "Cuenta")'">Integrantes</div>
+             onclick="location.href='@Url.Action("Integrantes", "Cuenta")'">Integrntes</div>
 
         <div class="@(currentAction == "AcercaDe" ? "modulo modulo-activo" : "modulo modulo-azul") flex-fill text-center mx-2"
              onclick="location.href='@Url.Action("AcercaDe", "Cuenta")'">Acerca de</div>
@@ -59,13 +59,14 @@
                     <div class="col-md-6">
                         <div class="p-3 border rounded shadow-sm h-100 bg-light">
                             <h5 class="text-primary">🛠️ Tecnologías Utilizadas</h5>
-                            <p class="mb-1">• ASP.NET MVC</p>
-                            <p class="mb-1">• C#</p>
-                            <p class="mb-1">• ADO.NET</p>
-                            <p class="mb-1">• SQL Server</p>
-                            <p class="mb-0">• Librerías PDF</p>
+                            <p class="mb-1"><strong>ASP.NET MVC:</strong> Framework para construir aplicaciones web dinámicas siguiendo el patrón Modelo-Vista-Controlador.</p>
+                            <p class="mb-1"><strong>C#:</strong> Lenguaje de programación orientado a objetos, utilizado para desarrollar la lógica del proyecto.</p>
+                            <p class="mb-1"><strong>ADO.NET:</strong> Biblioteca para acceder y manipular bases de datos desde aplicaciones .NET.</p>
+                            <p class="mb-1"><strong>SQL Server:</strong> Sistema gestor de bases de datos relacional para almacenar y consultar datos.</p>
+                            <p class="mb-0"><strong>Librerías PDF:</strong> Herramientas para generar y manipular documentos PDF dentro de la aplicación.</p>
                         </div>
                     </div>
+
                     <div class="col-md-6">
                         <div class="p-3 border rounded shadow-sm h-100 bg-light">
                             <h5 class="text-primary">🎯 Público Objetivo</h5>

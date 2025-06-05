@@ -30,6 +30,10 @@ namespace Portable.Controllers
         {
             return View();
         }
+        public ActionResult Integrantes()
+        {
+            return View();
+        }
 
         // Acción POST para crear cuenta, recibe un objeto usuario desde el formulario
         [HttpPost]

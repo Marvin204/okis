@@ -242,14 +242,13 @@
     <Content Include="Views\Metodos\MenuMetodos.cshtml" />
     <Content Include="Views\Secante\VistaSecante.cshtml" />
     <Content Include="Views\Cuenta\Historial.cshtml" />
-    <Content Include="Views\Secante\VistaMuller.cshtml" />
-    <Content Include="Views\Secante\VistaGauss_Jordan.cshtml" />
     <Content Include="Views\Newton\VistaNewton.cshtml" />
     <Content Include="Views\Muller\VistaMuller.cshtml" />
     <Content Include="Views\Gauss\VistaGauss.cshtml" />
     <Content Include="Views\Historial\VistaHistorial.cshtml" />
     <Content Include="Views\Cuenta\AcercaDe.cshtml" />
     <Content Include="Views\Historial\GraficaIteraciones.cshtml" />
+    <Content Include="Views\Cuenta\Integrantes.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

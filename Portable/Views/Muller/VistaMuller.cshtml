@@ -6,9 +6,6 @@
 
 
 
-<button class="vertical-button" onclick="location.href='@Url.Action("MenuMetodos", "Metodos")'">Ver Historial</button>
-
-
 
 @if (iteraciones != null && iteraciones.Count > 0)
 {
@@ -42,38 +39,4 @@
             }
         </tbody>
     </table>
-}
-
-@if (ViewBag.PuntosGrafica != null)
-{
-    <canvas id="graficaMuller" width="600" height="400"></canvas>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        var puntos = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(ViewBag.PuntosGrafica));
-        var ctx = document.getElementById('graficaMuller').getContext('2d');
-
-        var labels = puntos.map(p => p.x.toFixed(4));
-        var data = puntos.map(p => p.y.toFixed(4));
-
-        var chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'f(X) en cada iteración',
-                    data: data,
-                    borderColor: 'rgba(153, 102, 255, 1)',
-                    fill: false,
-                    tension: 0.1
-                }]
-            },
-            options: {
-                scales: {
-                    x: { display: true, title: { display: true, text: 'X' } },
-                    y: { display: true, title: { display: true, text: 'f(X)' } }
-                }
-            }
-        });
-    </script>
 }

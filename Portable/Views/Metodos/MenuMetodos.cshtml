@@ -94,6 +94,7 @@
                     @Html.TextBoxFor(m => m.MaxIteraciones, new { @class = "form-control", type = "number", min = "1" })
                 </div>
                 <button type="submit" class="btn btn-primary">Calcular</button>
+                <button id="btnReporteNewton" class="btn btn-success" style="display:none;" onclick="generarReporteNewton()">Generar Reporte PDF</button>
             </form>
         </div>
         <!--Formulario Secate-->

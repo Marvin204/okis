@@ -1,76 +1,146 @@
 ﻿@model Portable.Models.Ecuaciones
 @{
     var iteraciones = ViewBag.Iteraciones as List<Portable.Models.Iteraciones>;
+    var puntosGrafica = ViewBag.PuntosGrafica;
+    string nombreUsuario = ViewBag.NombreUsuario as string ?? "Usuario desconocido";
+    string correo = ViewBag.Correo as string ?? "N/A";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
+<div class="container mt-4">
+    <div class="p-4 rounded-4 shadow" style="background-color: #f8f9fa; border-left: 8px solid #d9171f;">
+        <!-- Información del Usuario -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="text-danger fw-bold mb-1">
+                    <i class="bi bi-person-circle"></i> Información del Usuario
+                </h5>
+                <p class="mb-0">Bienvenido, <strong class="text-primary">@Session["UsuarioNombre"]</strong></p>
+                <p class="mb-0">ID de Usuario: <strong>@Session["IdUsuario"]</strong></p>
+            </div>
+            <img src="@Url.Content("~/Resources/umg2B.png")" alt="Logo UMG" class="img-fluid rounded" style="max-height: 80px;" />
+        </div>
+
+        <hr class="my-3" />
+
+        <!-- Detalles del Cálculo -->
+        <div>
+            <h6 class="text-dark mb-3">
+                <i class="bi bi-gear-fill"></i> Detalles del Cálculo
+            </h6>
+            <div class="row">
+                <div class="col-md-6 mb-2">
+                    <strong class="text-secondary">Ecuación ingresada:</strong>
+                    <div>@Model.Funcion</div>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <strong class="text-secondary">Valor Inicial:</strong>
+                    <div>@Model.ValorInicial1</div>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <strong class="text-secondary">Tolerancia:</strong>
+                    <div>@Model.Tolerancia</div>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <strong class="text-secondary">Iteraciones realizadas:</strong>
+                    <div>@(iteraciones?.Count ?? 0)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 @if (iteraciones != null && iteraciones.Count > 0)
 {
-    <h3>Cuadro de Iteraciones</h3>
-    <table class="table table-bordered table-striped">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>X</th>
-                <th>f(X)</th>
-                <th>f'(X)</th>
-                <th>Error</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var it in iteraciones)
-            {
-                <tr>
-                    <td>@it.Numero</td>
-                    <td>@it.X0</td>
-                    <td>@it.FX0</td>
-                    <td>@it.FX1</td>
-                    <td>@it.Error</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <h2 class="text-primary">Resultados del Método de Newton-Raphson</h2>
 
-    <h3>Gráfica de f(x)</h3>
-    <canvas id="graficaNewton" width="600" height="400"></canvas>
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>X</th>
+                    <th>f(X)</th>
+                    <th>f'(X)</th>
+                    <th>Error</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var it in iteraciones)
+                {
+                    <tr>
+                        <td>@it.Numero</td>
+                        <td>@it.X0</td>
+                        <td>@it.FX0</td>
+                        <td>@it.FX1</td>
+                        <td>@it.Error</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+
+    <h3 class="mt-4">Gráfica de f(x)</h3>
+    <canvas id="graficaNewton" width="600" height="400" class="border rounded shadow-sm"></canvas>
 
     <script>
-        function dibujarGraficaNewton() {
-            const datosGrafica = @Html.Raw(ViewBag.PuntosGrafica ?? "[]");
-            const labels = datosGrafica.map(p => p.x);
-            const data = datosGrafica.map(p => p.y);
+            function dibujarGraficaNewton() {
+                const datosGrafica = @Html.Raw(puntosGrafica ?? "[]");
+                const labels = datosGrafica.map(p => p.x.toFixed(4));
+                const data = datosGrafica.map(p => p.y);
 
-            const ctx = document.getElementById('graficaNewton')?.getContext('2d');
-
-            if (ctx && labels.length > 0) {
-                new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: labels,
-                        datasets: [{
-                            label: 'f(x)',
-                            data: data,
-                            borderColor: 'rgba(0, 123, 255, 1)',
-                            backgroundColor: 'rgba(0, 123, 255, 0.2)',
-                            tension: 0.3,
-                            fill: true
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        scales: {
-                            x: { title: { display: true, text: 'x' } },
-                            y: { title: { display: true, text: 'f(x)' } }
+                const ctx = document.getElementById('graficaNewton')?.getContext('2d');
+                if (ctx && labels.length > 0) {
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'f(x)',
+                                data: data,
+                                borderColor: 'rgba(0, 123, 255, 1)',
+                                backgroundColor: 'rgba(0, 123, 255, 0.2)',
+                                tension: 0.3,
+                                fill: true,
+                                pointRadius: 3,
+                                pointHoverRadius: 6
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: { display: true }
+                            },
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'x'
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'f(x)'
+                                    }
+                                }
+                            }
                         }
-                    }
-                });
+                    });
+                } else {
+                    console.warn("No hay datos para graficar.");
+                }
             }
-            else {
-                console.warn("No hay datos o canvas no encontrado.");
-            }
-        }
+
+            document.addEventListener('DOMContentLoaded', dibujarGraficaNewton);
     </script>
 }
 else
 {
-    <p>No hay iteraciones para mostrar.</p>
+    <div class="alert alert-warning mt-4">
+        <i class="bi bi-exclamation-triangle-fill"></i> No hay iteraciones para mostrar.
+    </div>
 }
+</div>

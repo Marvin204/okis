@@ -89,7 +89,9 @@ namespace Portable.Controllers
                         cmd.Parameters.AddWithValue("@IdMetodo", 1); // Newton-Raphson
 
                         idResultado = (int)cmd.ExecuteScalar();
+
                     }
+
 
                     // 4. Insertar iteraciones
                     foreach (var it in iteraciones)
@@ -115,6 +117,7 @@ namespace Portable.Controllers
                     ViewBag.PuntosGrafica = JsonConvert.SerializeObject(
                         iteraciones.Select(it => new { x = it.X0, y = it.FX0 }).ToList()
                     );
+                    ViewBag.IdResultado = idResultado;
                     ViewBag.Iteraciones = iteraciones;
                     ViewBag.Mensaje = "✅ Ecuación resuelta correctamente.";
                 }

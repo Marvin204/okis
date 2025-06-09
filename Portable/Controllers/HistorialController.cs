@@ -3,195 +3,172 @@ using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.IO;
 using System.Web.Mvc;
-using iTextSharp.text.pdf;
 using iTextSharp.text;
+using iTextSharp.text.pdf;
 using Portable.Models;
 
 namespace Portable.Controllers
 {
     public class HistorialController : Controller
     {
-
         public ActionResult ExportarIteracionesPDF(int idResultado)
         {
-            // Obtener las iteraciones asociadas a ese resultado
             List<Iteraciones> iteraciones = new List<Iteraciones>();
 
-            using (SqlConnection conn = ConexionDBController.ObtenerConexion())
+            // Variables para info de la ecuación
+            string funcion = "";
+            double? valorInicial = null;
+            double tolerancia = 0;
+            int maxIteraciones = 0;
+            DateTime fechaIngreso = DateTime.Now;
+
+            try
             {
-                conn.Open();
-                string query = "SELECT Numero, X0, X1, X2, FX0, FX1, FX2, Error FROM Iteraciones WHERE IdResultado = @IdResultado";
-
-                using (SqlCommand cmd = new SqlCommand(query, conn))
+                using (SqlConnection conn = ConexionDBController.ObtenerConexion())
                 {
-                    cmd.Parameters.AddWithValue("@IdResultado", idResultado);
-                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    conn.Open();
+
+                    // Obtener datos de la ecuación
+                    string ecuacionQuery = @"
+                        SELECT e.Funcion, e.ValorInicial1, e.Tolerancia, e.MaxIteraciones, e.FechaIngreso
+                        FROM Resultados r
+                        INNER JOIN Ecuaciones e ON r.IdEcuacion = e.IdEcuacion
+                        WHERE r.IdResultado = @IdResultado";
+
+                    using (SqlCommand cmd = new SqlCommand(ecuacionQuery, conn))
                     {
-                        while (reader.Read())
+                        cmd.Parameters.AddWithValue("@IdResultado", idResultado);
+                        using (SqlDataReader reader = cmd.ExecuteReader())
                         {
-                            iteraciones.Add(new Iteraciones
+                            if (reader.Read())
                             {
-                                Numero = reader["Numero"] != DBNull.Value ? Convert.ToInt32(reader["Numero"]) : 0,
-                                X0 = reader["X0"] != DBNull.Value ? Convert.ToDouble(reader["X0"]) : 0,
-                                X1 = reader["X1"] != DBNull.Value ? Convert.ToDouble(reader["X1"]) : 0,
-                                X2 = reader["X2"] != DBNull.Value ? Convert.ToDouble(reader["X2"]) : 0,
-                                FX0 = reader["FX0"] != DBNull.Value ? Convert.ToDouble(reader["FX0"]) : 0,
-                                FX1 = reader["FX1"] != DBNull.Value ? Convert.ToDouble(reader["FX1"]) : 0,
-                                FX2 = reader["FX2"] != DBNull.Value ? Convert.ToDouble(reader["FX2"]) : (double?)null,
-                                Error = reader["Error"] != DBNull.Value ? Convert.ToDouble(reader["Error"]) : 0
-                            });
-                        }
-
-
-                    }
-
-                }
-            }
-
-            // Crear el documento PDF
-            MemoryStream ms = new MemoryStream();
-            Document doc = new Document();
-            PdfWriter.GetInstance(doc, ms).CloseStream = false;
-            doc.Open();
-
-            Paragraph title = new Paragraph("Tabla de Iteraciones", new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD));
-            title.Alignment = Element.ALIGN_CENTER;
-            doc.Add(title);
-            doc.Add(new Paragraph(" ")); // Espacio
-
-            PdfPTable table = new PdfPTable(8); // 8 columnas
-            table.WidthPercentage = 100;
-            table.AddCell("N°");
-            table.AddCell("X0");
-            table.AddCell("X1");
-            table.AddCell("X2");
-            table.AddCell("F(X0)");
-            table.AddCell("F(X1)");
-            table.AddCell("F(X2)");
-            table.AddCell("Error");
-
-            foreach (var it in iteraciones)
-            {
-                table.AddCell(it.Numero.ToString());
-                table.AddCell(it.X0.ToString("F6"));
-                table.AddCell(it.X1.ToString("F6"));
-                table.AddCell(it.X2.ToString("F6"));
-                table.AddCell(it.FX0.ToString("F6"));
-                table.AddCell(it.FX1.ToString("F6"));
-                table.AddCell(it.FX2.HasValue ? it.FX2.Value.ToString("F6") : "-");
-                table.AddCell(it.Error.ToString("F6"));
-            }
-
-            doc.Add(table);
-            doc.Close();
-
-            ms.Position = 0;
-            return File(ms, "application/pdf", "IteracionesResultado_" + idResultado + ".pdf");
-        }
-        public ActionResult VistaHistorial()
-        {
-            if (Session["IdUsuario"] == null)
-                return RedirectToAction("IniciarSesion", "Cuenta");
-
-            int idUsuario = (int)Session["IdUsuario"];
-            List<Resultados> resultados = new List<Resultados>();
-
-            using (SqlConnection conn = ConexionDBController.ObtenerConexion())
-            {
-                conn.Open();
-
-                string queryResultados = @"
-                    SELECT r.IdResultado, r.ResultadoFinal, r.Iteraciones, r.ErrorEstimado, r.FechaResultado,
-                           r.IdMetodo, r.IdEcuacion, m.NombreMetodo, e.Funcion
-                    FROM Resultados r
-                    INNER JOIN MetodosNumericos m ON r.IdMetodo = m.IdMetodo
-                    INNER JOIN Ecuaciones e ON r.IdEcuacion = e.IdEcuacion
-                    WHERE e.IdUsuario = @IdUsuario
-                    ORDER BY r.FechaResultado DESC";
-
-                using (SqlCommand cmdResultados = new SqlCommand(queryResultados, conn))
-                {
-                    cmdResultados.Parameters.AddWithValue("@IdUsuario", idUsuario);
-
-                    using (SqlDataReader reader = cmdResultados.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            resultados.Add(new Resultados
-                            {
-                                IdResultado = Convert.ToInt32(reader["IdResultado"]),
-                                ResultadoFinal = reader["ResultadoFinal"] == DBNull.Value ? 0.0 : Convert.ToDouble(reader["ResultadoFinal"]),
-                                Iteraciones = reader["Iteraciones"] == DBNull.Value ? 0 : Convert.ToInt32(reader["Iteraciones"]),
-                                ErrorEstimado = reader["ErrorEstimado"] == DBNull.Value ? 0.0 : Convert.ToDouble(reader["ErrorEstimado"]),
-                                FechaResultado = Convert.ToDateTime(reader["FechaResultado"]),
-                                IdMetodo = Convert.ToInt32(reader["IdMetodo"]),
-                                IdEcuacion = Convert.ToInt32(reader["IdEcuacion"]),
-                                MetodoNumerico = new MetodosNumericos
-                                {
-                                    NombreMetodo = reader["NombreMetodo"].ToString()
-                                },
-                                Ecuacion = new Ecuaciones
-                                {
-                                    Funcion = reader["Funcion"].ToString()
-                                },
-                                ListaIteraciones = new List<Iteraciones>()
-                            });
-                        }
-
-                    }
-                }
-
-                string queryIteraciones = @"
-                    SELECT IdIteracion, Numero, X0, X1, X2, FX0, FX1, FX2, Error, IdResultado
-                    FROM Iteraciones
-                    WHERE IdResultado = @IdResultado
-                    ORDER BY Numero";
-
-                foreach (var resultado in resultados)
-                {
-                    using (SqlCommand cmdIter = new SqlCommand(queryIteraciones, conn))
-                    {
-                        cmdIter.Parameters.Clear();
-                        cmdIter.Parameters.AddWithValue("@IdResultado", resultado.IdResultado);
-
-                        using (SqlDataReader readerIter = cmdIter.ExecuteReader())
-                        {
-                            while (readerIter.Read())
-                            {
-                                // Validar que al menos una columna clave no esté vacía
-                                bool tieneDatos = !(readerIter["X0"] is DBNull &&
-                                                    readerIter["X1"] is DBNull &&
-                                                    readerIter["X2"] is DBNull &&
-                                                    readerIter["FX0"] is DBNull &&
-                                                    readerIter["FX1"] is DBNull &&
-                                                    readerIter["FX2"] is DBNull &&
-                                                    readerIter["Error"] is DBNull);
-
-                                if (tieneDatos)
-                                {
-                                    resultado.ListaIteraciones.Add(new Iteraciones
-                                    {
-                                        IdIteracion = Convert.ToInt32(readerIter["IdIteracion"]),
-                                        Numero = Convert.ToInt32(readerIter["Numero"]),
-                                        X0 = readerIter["X0"] == DBNull.Value ? 0.0 : Convert.ToDouble(readerIter["X0"]),
-                                        X1 = readerIter["X1"] == DBNull.Value ? 0.0 : Convert.ToDouble(readerIter["X1"]),
-                                        X2 = readerIter["X2"] == DBNull.Value ? 0.0 : Convert.ToDouble(readerIter["X2"]),
-                                        FX0 = readerIter["FX0"] == DBNull.Value ? 0.0 : Convert.ToDouble(readerIter["FX0"]),
-                                        FX1 = readerIter["FX1"] == DBNull.Value ? 0.0 : Convert.ToDouble(readerIter["FX1"]),
-                                        FX2 = readerIter["FX2"] == DBNull.Value ? (double?)null : Convert.ToDouble(readerIter["FX2"]),
-                                        Error = readerIter["Error"] == DBNull.Value ? 0.0 : Convert.ToDouble(readerIter["Error"]),
-                                        IdResultado = Convert.ToInt32(readerIter["IdResultado"])
-                                    });
-                                }
+                                funcion = reader["Funcion"].ToString();
+                                valorInicial = reader["ValorInicial1"] != DBNull.Value ? (double?)Convert.ToDouble(reader["ValorInicial1"]) : null;
+                                tolerancia = Convert.ToDouble(reader["Tolerancia"]);
+                                maxIteraciones = Convert.ToInt32(reader["MaxIteraciones"]);
+                                fechaIngreso = Convert.ToDateTime(reader["FechaIngreso"]);
                             }
+                        }
+                    }
 
+                    // Obtener iteraciones
+                    string query = "SELECT Numero, X0, X1, X2, FX0, FX1, FX2, Error FROM Iteraciones WHERE IdResultado = @IdResultado";
 
+                    using (SqlCommand cmd = new SqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@IdResultado", idResultado);
+                        using (SqlDataReader reader = cmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                int numero = reader["Numero"] != DBNull.Value ? Convert.ToInt32(reader["Numero"]) : 0;
+                                double x0 = reader["X0"] != DBNull.Value ? Convert.ToDouble(reader["X0"]) : 0;
+                                double x1 = reader["X1"] != DBNull.Value ? Convert.ToDouble(reader["X1"]) : 0;
+                                double x2 = reader["X2"] != DBNull.Value ? Convert.ToDouble(reader["X2"]) : 0;
+                                double fx0 = reader["FX0"] != DBNull.Value ? Convert.ToDouble(reader["FX0"]) : 0;
+                                double fx1 = reader["FX1"] != DBNull.Value ? Convert.ToDouble(reader["FX1"]) : 0;
+                                double? fx2 = reader["FX2"] != DBNull.Value ? (double?)Convert.ToDouble(reader["FX2"]) : null;
+                                double error = reader["Error"] != DBNull.Value ? Convert.ToDouble(reader["Error"]) : 0;
+
+                                iteraciones.Add(new Iteraciones
+                                {
+                                    Numero = numero,
+                                    X0 = x0,
+                                    X1 = x1,
+                                    X2 = x2,
+                                    FX0 = fx0,
+                                    FX1 = fx1,
+                                    FX2 = fx2,
+                                    Error = error
+                                });
+                            }
                         }
                     }
                 }
             }
+            catch (Exception ex)
+            {
+                return new HttpStatusCodeResult(500, "Error al obtener datos: " + ex.Message);
+            }
 
-            return View(resultados);
+            // Generar PDF
+            MemoryStream ms = new MemoryStream();
+            Document doc = new Document(PageSize.A4, 25, 25, 30, 30);
+
+            try
+            {
+                PdfWriter writer = PdfWriter.GetInstance(doc, ms);
+                writer.CloseStream = false;
+                doc.Open();
+
+                // Título
+                Paragraph title = new Paragraph("Reporte de Iteraciones", new Font(Font.FontFamily.HELVETICA, 18, Font.BOLD));
+                title.Alignment = Element.ALIGN_CENTER;
+                doc.Add(title);
+                doc.Add(new Paragraph(" "));
+
+                // Información de la ecuación
+                doc.Add(new Paragraph("Detalles del Cálculo", new Font(Font.FontFamily.HELVETICA, 14, Font.BOLD)));
+                doc.Add(new Paragraph("Función: " + funcion));
+                doc.Add(new Paragraph("Valor Inicial: " + (valorInicial.HasValue ? valorInicial.Value.ToString("F6") : "-")));
+                doc.Add(new Paragraph("Tolerancia: " + tolerancia));
+                doc.Add(new Paragraph("Máx. Iteraciones: " + maxIteraciones));
+                doc.Add(new Paragraph("Fecha de ingreso: " + fechaIngreso.ToString("dd/MM/yyyy HH:mm")));
+                doc.Add(new Paragraph(" "));
+
+                if (iteraciones.Count == 0)
+                {
+                    Paragraph noData = new Paragraph("No se encontraron iteraciones para este resultado.",
+                        new Font(Font.FontFamily.HELVETICA, 12, Font.ITALIC, BaseColor.RED));
+                    noData.Alignment = Element.ALIGN_CENTER;
+                    doc.Add(noData);
+                }
+                else
+                {
+                    PdfPTable table = new PdfPTable(8);
+                    table.WidthPercentage = 100;
+
+                    // Encabezados
+                    string[] headers = { "N°", "X0", "X1", "X2", "F(X0)", "F(X1)", "F(X2)", "Error" };
+                    foreach (string header in headers)
+                    {
+                        PdfPCell cell = new PdfPCell(new Phrase(header))
+                        {
+                            BackgroundColor = BaseColor.LIGHT_GRAY,
+                            HorizontalAlignment = Element.ALIGN_CENTER
+                        };
+                        table.AddCell(cell);
+                    }
+
+                    // Filas
+                    foreach (var it in iteraciones)
+                    {
+                        table.AddCell(it.Numero.ToString());
+                        table.AddCell(it.X0.ToString("F6"));
+                        table.AddCell(it.X1.ToString("F6"));
+                        table.AddCell(it.X2.ToString("F6"));
+                        table.AddCell(it.FX0.ToString("F6"));
+                        table.AddCell(it.FX1.ToString("F6"));
+                        table.AddCell(it.FX2.HasValue ? it.FX2.Value.ToString("F6") : "-");
+                        table.AddCell(it.Error.ToString("F6"));
+                    }
+
+                    doc.Add(table);
+                }
+
+                doc.Close();
+                ms.Position = 0;
+
+                return File(ms, "application/pdf", $"IteracionesResultado_{idResultado}.pdf");
+            }
+            catch (Exception ex)
+            {
+                return new HttpStatusCodeResult(500, "Error al generar PDF: " + ex.Message);
+            }
+            finally
+            {
+                if (doc.IsOpen()) doc.Close();
+            }
         }
     }
 }
